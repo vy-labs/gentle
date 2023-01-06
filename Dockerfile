@@ -13,15 +13,16 @@ RUN DEBIAN_FRONTEND=noninteractive && \
 		ffmpeg \
 		python3 python3-dev python3-pip \
 		python python-dev python-pip \
-		wget unzip && \
+		wget unzip sox git && \
 	apt-get clean
 
-ADD ext /gentle/ext
-RUN export MAKEFLAGS=' -j8' &&  cd /gentle/ext && \
-	./install_kaldi.sh && \
-	make depend && make && rm -rf kaldi *.o
-
 ADD . /gentle
+RUN cd /gentle/ext && \
+       git submodule init && \
+       git submodule update && \
+       ./install_kaldi.sh && \
+       make depend && make && rm -rf kaldi *.o
+
 RUN cd /gentle && python3 setup.py develop
 RUN cd /gentle && ./install_models.sh
 
